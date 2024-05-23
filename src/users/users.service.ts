@@ -7,11 +7,14 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import statuses from 'src/constants/statuses';
 import userTypes from 'src/constants/user_types';
+import { MailService } from 'src/mail/mail.service';
+import { use } from 'passport';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
+    private mailService: MailService,
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
@@ -31,10 +34,7 @@ export class UsersService {
   }
 
   async getUsers() {
-    const users = await this.userModel
-      .find({ type: userTypes.user })
-      .select('-auth_info')
-      .exec();
+    const users = await this.userModel.find().select('-auth_info').exec();
     return users;
   }
 
@@ -70,6 +70,8 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
+
+    await this.mailService.sendMail(user);
 
     return user;
   }
