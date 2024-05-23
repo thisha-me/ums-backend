@@ -1,4 +1,6 @@
 import {
+  ArrayMaxSize,
+  IsArray,
   IsEmail,
   IsEnum,
   IsNotEmpty,
@@ -6,7 +8,9 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
-import { IsAdminPasswordRequired } from '../decorators/is-admin-password-required.decorator';
+import userTypes from 'src/constants/user_types';
+import statuses from 'src/constants/statuses';
+import gender from 'src/constants/gender';
 
 class BasicInfo {
   @Transform(({ value }) => value.trim())
@@ -25,7 +29,7 @@ class BasicInfo {
 
   @Transform(({ value }) => value.trim())
   @IsNotEmpty()
-  @IsEnum(['MALE', 'FEMALE', 'OTHER'])
+  @IsEnum(gender)
   gender: string;
 }
 
@@ -35,26 +39,28 @@ class ContactInfo {
   @IsEmail()
   email: string;
 
-  @Transform(({ value }) => value.trim())
   @IsNotEmpty()
-  @IsString()
-  phone: string;
+  @IsArray()
+  @ArrayMaxSize(3)
+  @IsString({ each: true })
+  @Transform(({ value }) => value.map((v: string) => v.trim()))
+  mobile_numbers: string[];
 }
 
 class AuthInfo {
   @Transform(({ value }) => value.trim())
-  @IsAdminPasswordRequired()
+  @IsString()
   password: string;
 }
 export class CreateUserDto {
   @Transform(({ value }) => value.trim())
   @IsNotEmpty()
-  @IsEnum(['ADMIN', 'USER'])
+  @IsEnum(userTypes)
   type: string;
 
   @Transform(({ value }) => value.trim())
   @IsNotEmpty()
-  @IsEnum(['ACTIVE', 'ONBOARD'])
+  @IsEnum(statuses)
   status: string;
 
   @ValidateNested()
