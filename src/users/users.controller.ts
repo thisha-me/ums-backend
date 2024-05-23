@@ -56,6 +56,8 @@ export class UsersController {
     }
   }
 
+  @Roles(userTypes.admin)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Patch(':id')
   async updateUser(
     @Param('id') id: string,
@@ -70,11 +72,25 @@ export class UsersController {
     }
   }
 
+  @Roles(userTypes.admin)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Put(':id')
   async deleteUser(@Param('id') id: string) {
     try {
       const user = await this.usersService.deleteUser(id);
       return user;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  @Roles(userTypes.admin, userTypes.user)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Get('page/:page')
+  async getUserByPage(@Param('page') page: number) {
+    try {
+      const users = await this.usersService.getUserByPage(page);
+      return users;
     } catch (error) {
       return error;
     }

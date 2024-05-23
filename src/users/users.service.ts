@@ -6,6 +6,7 @@ import { User } from './user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import statuses from 'src/constants/statuses';
+import userTypes from 'src/constants/user_types';
 
 @Injectable()
 export class UsersService {
@@ -30,7 +31,10 @@ export class UsersService {
   }
 
   async getUsers() {
-    const users = await this.userModel.find().select('-auth_info').exec();
+    const users = await this.userModel
+      .find({ type: userTypes.user })
+      .select('-auth_info')
+      .exec();
     return users;
   }
 
@@ -75,5 +79,21 @@ export class UsersService {
       .findOne({ 'contact_info.email': email })
       .exec();
     return user;
+  }
+
+  async getUserByPage(page: number) {
+    const limit = 10;
+
+    const users = await this.userModel
+      .find({ type: userTypes.user })
+      .select('-auth_info')
+      .skip((page - 1) * 10)
+      .limit(limit)
+      .exec();
+
+    if (users.length === 0) {
+      throw new NotFoundException('Users not found');
+    }
+    return users;
   }
 }

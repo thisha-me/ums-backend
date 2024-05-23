@@ -15,7 +15,7 @@ async function generateUsers() {
 
   for (let i = 0; i < 50; i++) {
     const createUserDto: CreateUserDto = {
-      type: faker.helpers.arrayElement(Object.values(userTypes)),
+      type: userTypes.user,
       status: faker.helpers.arrayElement(Object.values(statuses)),
       basic_info: {
         first_name: faker.person.firstName(),
