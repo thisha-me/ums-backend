@@ -8,7 +8,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import statuses from 'src/constants/statuses';
 import userTypes from 'src/constants/user_types';
 import { MailService } from 'src/mail/mail.service';
-import { use } from 'passport';
 
 @Injectable()
 export class UsersService {
@@ -29,6 +28,12 @@ export class UsersService {
   }
 
   async createUsers(createUserDtoS: CreateUserDto[]) {
+    for (const createUserDto of createUserDtoS) {
+      const { auth_info } = createUserDto;
+      const hashedPassword = bcrypt.hashSync(auth_info.password, 10);
+
+      createUserDto.auth_info.password = hashedPassword;
+    }
     const users = await this.userModel.insertMany(createUserDtoS);
     return users;
   }
@@ -91,11 +96,16 @@ export class UsersService {
       .select('-auth_info')
       .skip((page - 1) * 10)
       .limit(limit)
+      .sort({ createdAt: -1 })
+      .exec();
+
+    const totalUsers = await this.userModel
+      .countDocuments({ type: userTypes.user })
       .exec();
 
     if (users.length === 0) {
       throw new NotFoundException('Users not found');
     }
-    return users;
+    return { users, totalUsers };
   }
 }

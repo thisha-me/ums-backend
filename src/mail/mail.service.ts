@@ -20,7 +20,6 @@ export class MailService {
     this.port = this.configService.get<number>('MAIL_PORT');
     this.user = this.configService.get<string>('MAIL_USER');
     this.pass = this.configService.get<string>('MAIL_PASS');
-
     this.transporter = nodemailer.createTransport({
       host: this.host,
       port: this.port,

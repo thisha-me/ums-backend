@@ -20,7 +20,7 @@ import { RoleGuard } from 'src/auth/role.guard';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Roles(userTypes.admin)
   @UseGuards(JwtAuthGuard, RoleGuard)
@@ -34,8 +34,8 @@ export class UsersController {
     }
   }
 
-  @Roles(userTypes.admin, userTypes.user)
-  @UseGuards(JwtAuthGuard, RoleGuard)
+  // @Roles(userTypes.admin, userTypes.user)
+  // @UseGuards(JwtAuthGuard, RoleGuard)
   @Get()
   async getUsers() {
     try {
@@ -72,7 +72,7 @@ export class UsersController {
     }
   }
 
-  @Roles(userTypes.admin)
+  @Roles(userTypes.admin, userTypes.user)
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Put(':id')
   async deleteUser(@Param('id') id: string) {
